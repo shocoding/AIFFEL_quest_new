@@ -43,7 +43,7 @@ AIFFEL_quest
 │   └── Quest07
 │       ├── .ipynb
 │       └── README.md
-└─── Flutter_quest
+└── Flutter_quest
     ├── Quest01
     │   ├── TodoApp
     │   └── README.md
