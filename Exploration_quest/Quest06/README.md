@@ -1,43 +1,150 @@
 ## AIFFEL Campus Online Code Peer Review Templete
-- 코더 : 코더의 이름을 작성하세요.
-- 리뷰어 : 리뷰어의 이름을 작성하세요.
+- 코더 : 서승호
+- 리뷰어 : 이혁희
 
 
 ## PRT(Peer Review Template)
 - [ ]  **1. 주어진 문제를 해결하는 완성된 코드가 제출되었나요?**
-    - 문제에서 요구하는 최종 결과물이 첨부되었는지 확인
-    - 문제를 해결하는 완성된 코드란 프로젝트 루브릭 3개 중 2개, 
-    퀘스트 문제 요구조건 등을 지칭
-        - 해당 조건을 만족하는 코드를 캡쳐해 근거로 첨부
+    - 한국어 챗봇 모델은  구현되어 있지 않습니다.
+    - 영어 데이터의 전처리, 학습, 질문 답변 코드를 구현하였습니다.
+    ```
+    # 전처리 함수
+    def preprocess_sentence(sentence):
+      # 입력받은 sentence를 소문자로 변경하고 양쪽 공백을 제거
+      sentence = sentence.lower().strip()  # [[YOUR CODE]]
+
+      # 단어와 구두점(punctuation) 사이의 거리를 만듭니다.
+      # 예를 들어서 "I am a student." => "I am a student ."와 같이
+      # student와 온점 사이에 거리를 만듭니다.
+      sentence = re.sub(r"([?.!,])", r" \1 ", sentence)
+      sentence = re.sub(r'[" "]+', " ", sentence)
+
+      # (a-z, A-Z, ".", "?", "!", ",")를 제외한 모든 문자를 공백인 ' '로 대체합니다.
+      sentence = re.sub(r"[^a-zA-Z?.!,]+", " ", sentence)  # [[YOUR CODE]]
+      sentence = sentence.strip()
+      return sentence
+
+    print("슝=3")
+    ```
+    ```
+    EPOCHS = 10
+    model.fit(dataset, epochs=EPOCHS, verbose=1)
+    ```
+    ```
+    sentence_generation('Where have you been?')
+    ```
     
 - [ ]  **2. 전체 코드에서 가장 핵심적이거나 가장 복잡하고 이해하기 어려운 부분에 작성된 
 주석 또는 doc string을 보고 해당 코드가 잘 이해되었나요?**
-    - 해당 코드 블럭에 doc string/annotation이 달려 있는지 확인
-    - 해당 코드가 무슨 기능을 하는지, 왜 그렇게 짜여진건지, 작동 메커니즘이 뭔지 기술.
-    - 주석을 보고 코드 이해가 잘 되었는지 확인
-        - 잘 작성되었다고 생각되는 부분을 캡쳐해 근거로 첨부합니다.
+    - 주석이 잘 달려 있습니다.
         
 - [ ]  **3. 에러가 난 부분을 디버깅하여 문제를 “해결한 기록을 남겼거나” 
 ”새로운 시도 또는 추가 실험을 수행”해봤나요?**
-    - 문제 원인 및 해결 과정을 잘 기록하였는지 확인
-    - 문제에서 요구하는 조건에 더해 추가적으로 수행한 나만의 시도, 
-    실험이 기록되어 있는지 확인
-        - 잘 작성되었다고 생각되는 부분을 캡쳐해 근거로 첨부합니다.
-        
+    - 필요한 코드를 추가하여 전체 플로우를 실행해 보았습니다.
+    ```
+    class MultiHeadAttention(tf.keras.layers.Layer):
+
+      def __init__(self, d_model, num_heads, name="multi_head_attention"):
+        super(MultiHeadAttention, self).__init__(name=name)
+        self.num_heads = num_heads
+        self.d_model = d_model
+
+        assert d_model % self.num_heads == 0
+
+        self.depth = d_model // self.num_heads
+
+        self.query_dense = tf.keras.layers.Dense(units=d_model)
+        self.key_dense = tf.keras.layers.Dense(units=d_model)
+        self.value_dense = tf.keras.layers.Dense(units=d_model)
+
+        self.dense = tf.keras.layers.Dense(units=d_model)
+
+      def split_heads(self, inputs, batch_size):
+        inputs = tf.reshape(
+            inputs, shape=(batch_size, -1, self.num_heads, self.depth))
+        return tf.transpose(inputs, perm=[0, 2, 1, 3])
+
+      def call(self, inputs):
+        query, key, value, mask = inputs['query'], inputs['key'], inputs[
+            'value'], inputs['mask']
+        batch_size = tf.shape(query)[0]
+
+        # Q, K, V에 각각 Dense를 적용합니다
+        query = self.query_dense(query)  # [[YOUR CODE]]
+        key = self.key_dense(key)  # [[YOUR CODE]]
+        value = self.value_dense(value)  # [[YOUR CODE]]
+
+        # 병렬 연산을 위한 머리를 여러 개 만듭니다
+        query = self.split_heads(query, batch_size)  # [[YOUR CODE]]
+        key = self.split_heads(key, batch_size)  # [[YOUR CODE]]
+        value = self.split_heads(value, batch_size)  # [[YOUR CODE]]
+
+        # 스케일드 닷 프로덕트 어텐션 함수
+        scaled_attention = scaled_dot_product_attention(query, key, value, mask)
+
+        scaled_attention = tf.transpose(scaled_attention, perm=[0, 2, 1, 3])
+
+        # 어텐션 연산 후에 각 결과를 다시 연결(concatenate)합니다
+        concat_attention = tf.reshape(scaled_attention,
+                                      (batch_size, -1, self.d_model))
+
+        # 최종 결과에도 Dense를 한 번 더 적용합니다
+        outputs = self.dense(concat_attention)
+
+        return outputs
+
+    print("슝=3")
+    ```        
 - [ ]  **4. 회고를 잘 작성했나요?**
-    - 주어진 문제를 해결하는 완성된 코드 내지 프로젝트 결과물에 대해
-    배운점과 아쉬운점, 느낀점 등이 기록되어 있는지 확인
-    - 전체 코드 실행 플로우를 그래프로 그려서 이해를 돕고 있는지 확인
-        - 잘 작성되었다고 생각되는 부분을 캡쳐해 근거로 첨부합니다.
+    - 회고를 작성하지 않았습니다.
         
 - [ ]  **5. 코드가 간결하고 효율적인가요?**
-    - 파이썬 스타일 가이드 (PEP8) 를 준수하였는지 확인
-    - 하드코딩을 하지않고 함수화, 모듈화가 가능한 부분은 함수를 만들거나 클래스로 짰는지
-    - 코드 중복을 최소화하고 범용적으로 사용할 수 있도록 함수화했는지
-        - 잘 작성되었다고 생각되는 부분을 캡쳐해 근거로 첨부합니다.
+    - 노드의 학습 내용을 바탕으로 잘 작성하였습니다.
 
 
 ## 참고 링크 및 코드 개선
+
+트랜스포머 모델에서 한글 처리를 위해서 고쳐야할 부분은 다음 세 가지입니다.
+모델의 정의 등은 바꾸지 않아도 잘 돌아 갑니다.
+
+1. process_sentence함수
+    - 특수 문자를 공백문자로 대체할 때 한글을 남겨 놓아야 합니다.
+    ```
+      # (a-z, A-Z, ".", "?", "!", ",", 한글)를 제외한 모든 문자를 공백인 ' '로 대체합니다.
+      sentence = re.sub(r'[^a-zA-Z.?!,가-힣]', ' ', sentence)
+
+    ```
+2. load_conversations 함수
+    - 데이터가 질문, 답변, 라벨 순으로 되어 있으므로 형식에 맞게 questions와 answers를 load하면 됩니다.
+    ```
+    import csv
+
+    def load_conversations():
+        file_path = '/aiffel/aiffel/transformer_chatbot/data/ChatbotData .csv'
+
+        questions, answers, labels = [], [], []
+
+        with open(file_path, errors = 'ignore') as file:
+            reader = csv.reader(file)
+            next(reader)  # 첫 번째 줄(헤더) 건너뛰기
+
+            for row in reader:
+                if len(row) != 3:  # 데이터 형식이 올바르지 않은 경우 건너뛰기
+                    continue
+                question, answer, label = row
+
+                questions.append(preprocess_sentence(question))
+                answers.append(preprocess_sentence(answer))
+                labels.append(label)  # label은 preprocess_sentence를 적용하지 않음
+
+        return questions, answers, labels
+
+    questions, answers, labels = load_conversations()
+    ```
+
+3. MAX_LENGTH = 15 정도
+
+
 ```
 # 코드 리뷰 시 참고한 링크가 있다면 링크와 간략한 설명을 첨부합니다.
 # 코드 리뷰를 통해 개선한 코드가 있다면 코드와 간략한 설명을 첨부합니다.
