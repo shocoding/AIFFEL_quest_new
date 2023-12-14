@@ -71,3 +71,7 @@ class homePage extends StatelessWidget {
     );
   }
 }
+
+/* 회고. Material app을 안하고 바로 scaffold로 넘어가니 오류가 생기는 걸 볼 수 있었다.
+오류를 해결하고 잘 작성하였다.
+*/
